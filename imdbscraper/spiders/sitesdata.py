@@ -1,8 +1,7 @@
 import scrapy
-from imdbscraper.items import MovieItems
-from imdbscraper.itemsloader import MovieItemsLoader
+from ..items import MovieItems
+from ..itemsloader import MovieItemsLoader
 from re import findall
-
 
 class SitesdataSpider(scrapy.Spider):
     name = 'sitesdata'
@@ -14,7 +13,7 @@ class SitesdataSpider(scrapy.Spider):
         total_movies = response.xpath('//div[@class="nav"]/div[@class="desc"]/span/text()').get()
         num_movies = ''.join(findall('\s[0-9]+.+\s', total_movies))
         num_movies = int(num_movies.replace(',','').strip())
-        #num_movies = 151
+        num_movies = 501
         print(f'About to scrape {num_movies} movies')
         for i in range(1, num_movies, 50):
             link_edit = f'https://www.imdb.com/search/title/?country_of_origin=NG&sort=alpha,asc&start={i}&ref_=adv_nxt'

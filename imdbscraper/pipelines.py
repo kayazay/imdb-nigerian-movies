@@ -8,8 +8,7 @@
 
 import psycopg2
 
-
-class SavingOpenClose:
+class PostgresDump:
     # all SQL queries used in this script
     movies_query = '''
         DROP TABLE IF EXISTS movies;
@@ -98,18 +97,18 @@ class SavingOpenClose:
             %s,%s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s
             )
         '''
-
     # function to connect to database
     def open_spider(self, spider):
         self.connection = psycopg2.connect(
-            host = 'localhost',
+            host = 'db',
+            port = '5432',
             database = 'imdb',
-            user = 'postgres',
+            user = 'admin',
             password = 'eze'
         )
         self.curr = self.connection.cursor()
         # SQL code to create table to dump python data
-        self.curr.execute(self.create_scrapy_dump)
+        # self.curr.execute(self.create_scrapy_dump)
 
     #function to disconnect from database
     def close_spider(self, spider):
@@ -118,7 +117,6 @@ class SavingOpenClose:
 
     # function to process every scraped item and insert into postgres
     def process_item(self, item, spider):
-        #self.curr.execute('''''')
         # to handle empty results
         for x in ['url',
                 'title', 'poster', 'trailer', 'ratings', 'num_ratings',
