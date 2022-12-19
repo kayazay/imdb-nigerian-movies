@@ -19,12 +19,13 @@ class PostgresDump:
             POSTER VARCHAR(100),
             TRAILER VARCHAR(100),
             RATINGS NUMERIC,
-            NUM_RATINGS SMALLINT,
+            NUM_RATINGS INT,
             FULL_CAST TEXT,
             GENRE VARCHAR(100),
-            CERTIFICATE VARCHAR(20),
             RELEASE_DATE DATE,
-            ORIGIN VARCHAR(100),
+            LANGUAGE VARCHAR(100),
+            FILM_LOCATION TEXT,
+            COMPANY TEXT,
             DURATION SMALLINT,
             BOX_OFFICE INT,
             DIRECTOR TEXT,
@@ -37,8 +38,9 @@ class PostgresDump:
             url,
             title, poster, trailer, ratings, num_ratings,
             full_cast,
-            genre, certificate,
-            release_date, origin, duration, box_office,
+            genre,
+            release_date, language,
+            film_location, company, duration, box_office,
             director, writer, producer, keywords, about
         )
         SELECT
@@ -52,12 +54,13 @@ class PostgresDump:
             -- usual break again
             CASE WHEN FULL_CAST = '{}' THEN null ELSE REPLACE(btrim(FULL_CAST, '{""}'),'"','') END as full_cast,
             CASE WHEN GENRE = '{}' THEN null ELSE btrim(GENRE, '{}') END as genre,
-            CASE WHEN CERTIFICATE = '{}' THEN null ELSE REPLACE(btrim(CERTIFICATE, '{}'),'"','') END as certificate,
-            -- as release_date,
+            -- usual break again
             CASE WHEN RELEASE_DATE = '{""}' THEN null ELSE TO_DATE(btrim(RELEASE_DATE, '{""}'), 'Month DD, YYYY') END as release_date,
-            CASE WHEN ORIGIN = '{}' THEN null ELSE btrim(ORIGIN, '{}') END as origin,
+            CASE WHEN LANGUAGE = '{}' THEN null ELSE REPLACE(btrim(LANGUAGE, '{""}'),'"','') END as language,
+            CASE WHEN FILM_LOCATION = '{}' THEN null ELSE REPLACE(btrim(film_location, '{""}'),'"','') END as film_location,
+            CASE WHEN COMPANY = '{}' THEN null ELSE REPLACE(btrim(COMPANY, '{""}'),'"','') END as company,
             CASE WHEN DURATION IN ('{""}','{}') THEN null ELSE btrim(DURATION, '{}')::INT END as duration,
-            CASE WHEN BOX_OFFICE = '{}' THEN null ELSE 800*btrim(BOX_OFFICE, '{}')::FLOAT END as box_office,
+            CASE WHEN BOX_OFFICE = '{}' THEN null ELSE btrim(BOX_OFFICE, '{}')::FLOAT END as box_office,
             -- usual break
             CASE WHEN DIRECTOR = '{}' THEN null ELSE REPLACE(btrim(DIRECTOR, '{}'),'"','') END as director,
             CASE WHEN WRITER = '{}' THEN null ELSE REPLACE(btrim(WRITER, '{}'),'"','') END as writer,
@@ -77,9 +80,10 @@ class PostgresDump:
             -- don't ask why i'm doing this
             full_cast TEXT,
             -- another one
-            genre TEXT, certificate TEXT,
+            genre TEXT,
             -- just one more left
-            release_date TEXT, origin TEXT, duration TEXT, box_office TEXT,
+            release_date TEXT, language TEXT,
+            film_location TEXT, company TEXT, duration TEXT, box_office TEXT,
             -- and i'm done
             director TEXT, writer TEXT, producer TEXT, keywords TEXT,  about TEXT
         );
@@ -90,17 +94,25 @@ class PostgresDump:
             url,
             title, poster, trailer, ratings, num_ratings,
             full_cast,
-            genre, certificate,
-            release_date, origin, duration, box_office,
+            genre,
+            release_date, language,
+            film_location, company, duration, box_office,
             director, writer, producer, keywords, about)
         VALUES (    
-            %s,%s, %s, %s, %s, %s,%s, %s, %s, %s, %s, %s, %s,%s, %s, %s, %s, %s
+            %s,
+            %s,%s,%s,%s,%s,
+            %s,
+            %s,
+            %s,%s,
+            %s,%s,%s,%s,
+            %s,%s,%s,%s,%s
             )
         '''
-    # function to connect to database
+    
+    # open spider and connect to database
     def open_spider(self, spider):
         self.connection = psycopg2.connect(
-            host = 'db',
+            host = 'pg.service',
             port = '5432',
             database = 'imdb',
             user = 'admin',
@@ -108,25 +120,28 @@ class PostgresDump:
         )
         self.curr = self.connection.cursor()
         # SQL code to create table to dump python data
-        # self.curr.execute(self.create_scrapy_dump)
+        self.curr.execute(self.create_scrapy_dump)
 
-    #function to disconnect from database
+    # disconnect from database
     def close_spider(self, spider):
+        # drop table used for initial dumping from scrapy
+        self.curr.execute('DROP TABLE IF EXISTS scrapy_dump;')
         self.curr.close()
         self.connection.close()
 
-    # function to process every scraped item and insert into postgres
+    # process every scraped item and insert into postgres
     def process_item(self, item, spider):
         # to handle empty results
         for x in ['url',
                 'title', 'poster', 'trailer', 'ratings', 'num_ratings',
                 'full_cast',
-                'genre', 'certificate',
-                'release_date', 'origin', 'duration', 'box_office',
+                'genre',
+                'release_date', 'language', 
+                'film_location', 'company', 'duration', 'box_office',
                 'director', 'writer', 'producer', 'keywords', 'about']:
             if x not in item:
                 item[x] = []
-        # connect to table created above and insert scrapy data
+        # insert data from scrapy into scrapy_dump
         try:
             self.curr.execute(self.insert_scrapy_dump,
             (
@@ -136,9 +151,10 @@ class PostgresDump:
                 # second
                 item['full_cast'],
                 # third
-                item['genre'], item['certificate'],
-                # third
-                item['release_date'], item['origin'], item['duration'], item['box_office'],
+                item['genre'],
+                # fourth
+                item['release_date'], item['language'],
+                item['film_location'], item['company'], item['duration'], item['box_office'],
                 # last batch
                 item['director'], item['writer'], item['producer'], item['keywords'], item['about']
             )

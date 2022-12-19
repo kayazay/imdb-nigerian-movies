@@ -20,11 +20,8 @@ class MovieItems(scrapy.Item):
     full_cast =  scrapy.Field()
     # technical details
     genre =  scrapy.Field()
-    certificate =  scrapy.Field()
     # other details
     release_date =  scrapy.Field()
-    origin =  scrapy.Field()
-    site =  scrapy.Field()
     language =  scrapy.Field()
     film_location =  scrapy.Field()
     company =  scrapy.Field()

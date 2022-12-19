@@ -18,7 +18,8 @@ WORKDIR /app
 RUN pip3 install scrapy nltk psycopg2
 
 # select the files to build- the scraper and all config files
-COPY . .
+COPY imdbscraper/ ./imdbscraper/
+COPY scrapy.cfg run.py ./
 
 # run the script that runs scrapy
 CMD ["python3", "./run.py"]

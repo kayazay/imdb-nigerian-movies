@@ -1,0 +1,44 @@
+# version: '3.8'
+services:
+  pg.service:
+    container_name: imdb.pg.cntr
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: eze
+      POSTGRES_DB: imdb
+    ports:
+      - "5432:5432"
+    networks:
+      - default
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d imdb -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: none
+
+  py.service:
+    container_name: imdb.py.cntr
+    image: imdb.image
+    build: .
+    stdin_open: true
+    tty: true
+    depends_on:
+      pg.service:
+        condition: service_healthy
+    links:
+      - pg.service
+    networks:
+      - default
+
+volumes:
+  postgres_data:
+
+# docker-compose down -v: to delete containers and volumes
+# docker-compose up --build
+# docker exec -it imdb.pg.cntr bash
+# psql -d imdb -U admin
