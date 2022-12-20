@@ -1,6 +1,6 @@
 # WEB SCRAPING DATA ENGINEERING PROJECT
 
-Sometime this year, I had an idea to build a data warehouse that serves as a database for Nigerian movies and holds information such as:
+Sometime this year, I had an idea to build a data warehouse that serves as a database for Nigerian movies holding information such as:
 
 + title of a movie,
 + runtime or duration of a movie,
@@ -8,9 +8,7 @@ Sometime this year, I had an idea to build a data warehouse that serves as a dat
 + names of main cast and crew that worked on a movie,
 + movie description, and so on.
 
-This could be used by curious data enthusiasts to build charts, dashboards or even web apps; to uncover insights surrounding the trend of movies in Nigeria over a certain period, best-performing actors and actresses, language diversity of Nigerian movies; and much more.
-
-This project in particular focuses on scraping data from each of the [Nigerian movies hosted on imdb](https://www.imdb.com/search/title/?country_of_origin=NG&sort=alpha,asc&start=1&ref_=adv_nxt) using the following skills:
+This could be used by curious data enthusiasts to build charts, dashboards or even web apps; to uncover insights surrounding the trend of movies in Nigeria over a certain period, best-performing actors and actresses, language diversity of Nigerian movies; and much more. This project in particular focuses on scraping data from each of the [Nigerian movies hosted on imdb](https://www.imdb.com/search/title/?country_of_origin=NG&sort=alpha,asc&start=1&ref_=adv_nxt) using the following skills:
 
 + Scrapy framework,
 + Regex,
@@ -26,17 +24,21 @@ This entire project was containerized using Docker and here is a quick tutorial 
 
 + Spin up your Docker Terminal or CLI;
 
-+ `cd` into the directory that holds the **docker-compose.yml** and run `docker-compose up --build`
++ `cd` into the directory that holds the **docker-compose.yml** and run `docker build -t imdb.image .`
 
-> This attempts to start the containers within the **docker-compose.yml** file. The `imdb.pg.cntr` first; once that is successfully started then the `imdb.py.cntr` commences. The **--build** option allows docker to build the python image as specified in the **Dockerfile** and gives it a fixed name: `imdb.image`
+  + > This builds the Python image defined in the Dockerfile and once this is successful, run the code...
 
-+ `docker exec -it imdb.pg.cntr bash` opens an interactive shell to the postgres container to run psql queries.
++ `docker-compose run py.service`
+
+  + > This attempts to start the `imdb.py.cntr` container, but since this is dependent on the `imdb.pg.cntr`, the latter is started first; if successful, the former commences. You would be asked for an input, follow instructions and crawler should start.
+
++ Once the scraper closes, run `docker exec -it imdb.pg.cntr bash` to open an interactive shell to the postgres container to run psql queries.
 
 + `psql -d imdb -U admin` connects to database as the user **admin**
 
 + From here SQL queries can be run and the data can be explored.
 
-> Alternatively, this Postgres container can be connected to a PgAdmin GUI as preferred by user; or to a local Postgres instance
+  + > Alternatively, this Postgres container can be connected to a PgAdmin GUI as preferred by user; or to a local Postgres instance
 
 + `docker-compose down` is used to stop all running containers.
 
