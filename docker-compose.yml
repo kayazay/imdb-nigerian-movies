@@ -37,8 +37,3 @@ services:
 
 volumes:
   postgres_data:
-
-# docker-compose down -v: to delete containers and volumes
-# docker-compose up --build
-# docker exec -it imdb.pg.cntr bash
-# psql -d imdb -U admin
