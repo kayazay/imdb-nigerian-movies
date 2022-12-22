@@ -40,8 +40,14 @@ This entire project was containerized using Docker and here is a quick tutorial 
 
   + > Alternatively, this Postgres container can be connected to a PgAdmin GUI as preferred by user; or to a local Postgres instance
 
++ The `imdb.pg.cntr` container is built with a volume to persist the database. This means when both containers run successfully and Scrapy sends data to the imdb database, this is saved to your host computer in a hidden location; to enable reuse of data without docker-compose up every single time.
+
+  + Whenever database exists in the Postgres volume, it is possible to start the only the Postgres container and run queries on it without `docker-compose up`. 
+  + Simply run `docker-compose run -d py.service` and only the database would be started in detached mode.
+  + Then `docker exec -it imdb.pg.cntr bash` opens an interactive shell and so on...
+
+## NOTE: 
+
 + `docker-compose down` is used to stop all running containers.
 
 + `docker-compose down -v` is used as an extra option to remove existing volumes for a fresh run of the project, otherwise previous or database would be used.
-
-+ The `imdb.pg.cntr` container is built with a volume to persist the database. This means when both containers run successfully and Scrapy sends data to the imdb database, this is saved to your host computer in a hidden location; to enable reuse of data without docker-compose up every single time.
