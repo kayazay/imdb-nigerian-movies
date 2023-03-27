@@ -34,23 +34,23 @@
 
 - `num_ratings`: Convert numbers to full & actual values.
 
-  > 10K &rarr; **10000** 
-  >
-  > 3.2M &rarr; **3200000**
+    > 10K &rarr; **10000** 
+    >
+    > 3.2M &rarr; **3200000**
 
 - `genre`: Make null and filter out if it is either Music, Talk-Show, Documentary or Short.
 
 - `release_date`: Fill a random month if movie has none and a constant day of 1, so date can be parsed correctly.
 
-  > 1995 &rarr; **September 1, 1995**
-  >
-  > March 2012 &rarr; **March 1, 2012**
+    > 1995 &rarr; **September 1, 1995**
+    >
+    > March 2012 &rarr; **March 1, 2012**
 
 - `duration`: Convert running time written separately and in text to equivalent in minutes.
 
-  > 1h 30m &rarr; **90**
-  >
-  > 2h &rarr; **120**
+    > 1h 30m &rarr; **90**
+    >
+    > 2h &rarr; **120**
 
 ## Where does the data go next?
 
