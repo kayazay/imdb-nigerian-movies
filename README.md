@@ -1,53 +1,57 @@
-# WEB SCRAPING DATA ENGINEERING PROJECT
+# DATA WAREHOUSE OF NIGERIAN MOVIES
 
-Sometime this year, I had an idea to build a data warehouse that serves as a database for Nigerian movies holding information such as:
+## Run this project periodically
+- Make request to [imdb](imdb.com) to get information on Nigerian movies;
+- 50 movies each are hosted in one page of [imdb](imdb.com) search;
+- next link would be gotten from page as usual.
 
-+ title of a movie,
-+ runtime or duration of a movie,
-+ release year of a movie,
-+ names of main cast and crew that worked on a movie,
-+ movie description, and so on.
+## What items would be scraped?
+- **url** link to the movie;
+- **title** of movie;
+- link to movie **poster**;
+- link to movie **trailer**;
+- **ratings** of the movie out of 10;
+- number of individuals that reviewed movie **(num_ratings)**;
+- names of **stars** in movie;
+- names of **directors** of movie;
+- names of **writers** of movie;
+- movie **genre**;
+- date movie was released **(release_date)**;
+- **language** used in movie;
+- location movie was filmed **(film_location)**;
+- movie production **company**;
+- **duration** of movie;
+- description of movie **(about)**;
+- **page** number of movie.
 
-This could be used by curious data enthusiasts to build charts, dashboards or even web apps; to uncover insights surrounding the trend of movies in Nigeria over a certain period, best-performing actors and actresses, language diversity of Nigerian movies; and much more. This project in particular focuses on scraping data from each of the [Nigerian movies hosted on imdb](https://www.imdb.com/search/title/?country_of_origin=NG&sort=alpha,asc&start=1&ref_=adv_nxt) using the following skills:
+## How do we transform these?
 
-+ Scrapy framework,
-+ Regex,
-+ nltk,
-+ Postgres,
-+ Docker.
+- Many items are gotten as many-in-one rather than one-in-one, so naturally `default_output_processor` is to remove all nextline characters from each matching result then join them all with a semicolon.
 
-## How to Run Scrapy Project with Docker
+- `title`: Filter out movies that are actually episodes of a show and make null.
 
-This entire project was containerized using Docker and here is a quick tutorial on spinning up the containers required to start this project.
+- `ratings`: Take first non-null result.
 
-+ `git clone` this repository to get a local copy of all files;
+- `num_ratings`: Convert numbers to full & actual values.
 
-+ Spin up your Docker Terminal or CLI;
+  > 10K &rarr; **10000** 
+  >
+  > 3.2M &rarr; **3200000**
 
-+ `cd` into the directory that holds the **docker-compose.yml** and run `docker build -t imdb.image .`
+- `genre`: Make null and filter out if it is either Music, Talk-Show, Documentary or Short.
 
-  + > This builds the Python image defined in the Dockerfile and once this is successful, run the code...
+- `release_date`: Fill a random month if movie has none and a constant day of 1, so date can be parsed correctly.
 
-+ `docker-compose run py.service`
+  > 1995 &rarr; **September 1, 1995**
+  >
+  > March 2012 &rarr; **March 1, 2012**
 
-  + > This attempts to start the `imdb.py.cntr` container, but since this is dependent on the `imdb.pg.cntr`, the latter is started first; if successful, the former commences. You would be asked for an input, follow instructions and crawler should start.
+- `duration`: Convert running time written separately and in text to equivalent in minutes.
 
-+ Once the scraper closes, run `docker exec -it imdb.pg.cntr bash` to open an interactive shell to the postgres container to run psql queries.
+  > 1h 30m &rarr; **90**
+  >
+  > 2h &rarr; **120**
 
-+ `psql -d imdb -U admin` connects to database as the user **admin**
+## Where does the data go next?
 
-+ From here SQL queries can be run and the data can be explored.
-
-  + > Alternatively, this Postgres container can be connected to a PgAdmin GUI as preferred by user; or to a local Postgres instance
-
-+ The `imdb.pg.cntr` container is built with a volume to persist the database. This means when both containers run successfully and Scrapy sends data to the imdb database, this is saved to your host computer in a hidden location; to enable reuse of data without docker-compose up every single time.
-
-  + Whenever database exists in the Postgres volume, it is possible to start the only the Postgres container and run queries on it without `docker-compose up`. 
-  + Simply run `docker-compose run -d py.service` and only the database would be started in detached mode.
-  + Then `docker exec -it imdb.pg.cntr bash` opens an interactive shell and so on...
-
-## NOTE: 
-
-+ `docker-compose down` is used to stop all running containers.
-
-+ `docker-compose down -v` is used as an extra option to remove existing volumes for a fresh run of the project, otherwise previous or database would be used.
+- Data is loaded to a PostgresDB with data types, constraints & rules for INSERT specified.

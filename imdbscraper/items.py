@@ -8,16 +8,17 @@ import scrapy
 
 class MovieItems(scrapy.Item):
     # define the fields for your item here like:
-    # name = scrapy.Field()
     url =  scrapy.Field()
     # basic details
     title = scrapy.Field()
-    poster =  scrapy.Field(default=None)
-    trailer =  scrapy.Field(default = None)
+    poster =  scrapy.Field()
+    trailer =  scrapy.Field()
     ratings =  scrapy.Field()
     num_ratings =  scrapy.Field()
-    # cast details
-    full_cast =  scrapy.Field()
+    # cast & crew
+    stars =  scrapy.Field()
+    director =  scrapy.Field()
+    writer =  scrapy.Field()
     # technical details
     genre =  scrapy.Field()
     # other details
@@ -26,10 +27,6 @@ class MovieItems(scrapy.Item):
     film_location =  scrapy.Field()
     company =  scrapy.Field()
     duration =  scrapy.Field()
-    box_office =  scrapy.Field()
     # from previous methods
-    director =  scrapy.Field()
-    writer =  scrapy.Field()
-    producer =  scrapy.Field()
-    keywords = scrapy.Field()
     about = scrapy.Field()
+    page = scrapy.Field()
