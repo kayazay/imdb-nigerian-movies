@@ -1,4 +1,4 @@
-# DATA WAREHOUSE OF NIGERIAN MOVIES
+# Data Warehouse of Nigerian Movies
 
 ## Run this project periodically
 - Make request to [imdb](imdb.com) to get information on Nigerian movies;
